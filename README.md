@@ -1,0 +1,2 @@
+# chatGPT4-message-counnter-ext
+openaiのweb版chatGPT4のメッセージ数をカウントするchrome拡張機能
