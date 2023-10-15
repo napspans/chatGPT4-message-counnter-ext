@@ -19,5 +19,11 @@
   },
   "host_permissions": [
     "https://chat.openai.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "popup.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
