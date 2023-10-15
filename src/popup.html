@@ -1,7 +1,43 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        width: 300px;
+        height: 400px;
+        margin: 20px;
+        padding: 0;
+      }
+    </style>
+  </head>
   <body>
-    <h1>Current Count: <span id="count"></span></h1>
+    <!-- メイン画面 -->
+    <div id="main-view">
+      <h1>Current Count: <span id="count"></span></h1>
+      <button id="settings-button">設定</button>
+      <div id="timestamps-list"></div>
+    </div>
+    
+    <!-- 設定画面 -->
+    <div id="settings-view" style="display:none;">
+      <h1>設定</h1>
+      <form id="settings-form">
+        <label>
+          バッジ表示:
+          <input type="checkbox" id="show-badge">
+        </label>
+        <br>
+        <label>
+          検出するモデル:
+          <select id="target-model">
+            <option value="gpt-4">GPT-4</option>
+            <option value="text-davinci">GPT-3</option>
+          </select>
+        </label>
+      </form>
+      <button id="back-button">戻る</button>
+    </div>
   </body>
   <script src="popup.js"></script>
 </html>
