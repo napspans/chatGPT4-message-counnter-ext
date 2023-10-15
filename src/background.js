@@ -1,56 +1,94 @@
+// 定数の定義
+const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
+const MAX_TIMESTAMPS = 50;
+const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
 
-// HTTPリクエストを監視
+// HTTPリクエストの監視設定
 chrome.webRequest.onBeforeRequest.addListener(
-  (details) => {
-    if (details.method === "POST") {
-      const body = decodeURIComponent(String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes)));
-      if (body.includes('"model\":\"gpt-4')) {
-        const timestamp = Date.now();
-        saveTimestamp(timestamp);
-      }
-    }
-  },
-  { urls: ["https://chat.openai.com/backend-api/conversation"] },
+  handlePostRequest,
+  { urls: FILTER_URLS },
   ["requestBody"]
 );
+
+// POSTリクエストを処理する関数
+function handlePostRequest(details) {
+  if (details.method !== "POST") return;
+
+  const body = decodeURIComponent(
+    String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes))
+  );
+  
+  if (body.includes('"model":"gpt-4')) {
+    const timestamp = Date.now();
+    saveTimestamp(timestamp);
+  }
+}
 
 // タイムスタンプを保存する関数
 function saveTimestamp(timestamp) {
   chrome.storage.local.get(['timestamps'], (result) => {
     let timestamps = result.timestamps || [];
-    timestamps.push(timestamp);
-    
-    // ソートと古いタイムスタンプの削除
-    timestamps.sort();
-    if (timestamps.length > 50) {
-      timestamps = timestamps.slice(-50);
-    }
-    
-    // 3時間以上古いものを削除
-    const threeHoursAgo = Date.now() - 3 * 60 * 60 * 1000;
-    timestamps = timestamps.filter((ts) => ts > threeHoursAgo);
-
-    // バッジテキストを設定
-    chrome.action.setBadgeText({text: timestamps.length.toString()});
-    
-    if (timestamps.length <= 20) {
-      chrome.action.setBadgeBackgroundColor({color: [127, 255, 0, 255]});  // Green
-      if (chrome.action.setBadgeTextColor) {  // Chrome 98以降でサポート
-        chrome.action.setBadgeTextColor({color: [0, 0, 0, 255]});
-      }
-    } else if (timestamps.length > 20 && timestamps.length <= 23) {
-      chrome.action.setBadgeBackgroundColor({color: [255, 110, 0, 255]});  // Orange
-      if (chrome.action.setBadgeTextColor) {  // Chrome 98以降でサポート
-        chrome.action.setBadgeTextColor({color: [255, 255, 255, 255]});
-      }
-    } else {
-      chrome.action.setBadgeBackgroundColor({color: [255, 50, 50, 255]});  // Red
-      if (chrome.action.setBadgeTextColor) {  // Chrome 98以降でサポート
-        chrome.action.setBadgeTextColor({color: [255, 255, 255, 255]});
-      }
-    }
-
-    // ローカルストレージに保存
+    timestamps = cleanupTimestamps(timestamps, timestamp);
+    updateBadge(timestamps.length);
     chrome.storage.local.set({timestamps});
   });
+}
+
+// タイムスタンプの処理を行う関数
+function cleanupTimestamps(timestamps, newTimestamp) {
+  timestamps.push(newTimestamp);
+  timestamps.sort();
+  
+  if (timestamps.length > MAX_TIMESTAMPS) {
+    timestamps = timestamps.slice(-MAX_TIMESTAMPS);
+  }
+
+  const threshold = Date.now() - THREE_HOURS_MS;
+  return timestamps.filter((ts) => ts > threshold);
+}
+
+// グラデーション風のバッジ背景色とテキスト色を計算する関数
+function calculateGradientColors(count) {
+  let r, g, b;
+
+  if (count <= 30) {
+    // 単色: 緑 (R: 127, G: 255, B: 0)
+    r = 127;
+    g = 255;
+    b = 0;
+  } else if (count <= 40) {
+    // 緑からオレンジへのグラデーション (R: 127-255, G: 255-110, B: 0)
+    r = Math.floor(127 + (255 - 127) * ((count - 30) / (40 - 30)));
+    g = Math.floor(255 - (255 - 110) * ((count - 30) / (40 - 30)));
+    b = 0;
+  } else if (count <= 45) {
+    // オレンジから赤へのグラデーション (R: 255, G: 110-50, B: 0)
+    r = 255;
+    g = Math.floor(110 - (110 - 50) * ((count - 40) / (45 - 40)));
+    b = 0;
+  } else if (count <= 50) {
+    // 単色: 赤 (R: 255, G: 50, B: 0)
+    r = 255;
+    g = 50;
+    b = 0;
+  }
+  
+
+  // RGBA形式に変換
+  const bgColor = [r, g, b, 255];
+  // 文字色を自動調整
+  const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? [0, 0, 0, 255] : [255, 255, 255, 255];
+  
+  return [bgColor, textColor];
+}
+
+// バッジのスタイルを更新する関数
+function updateBadge(count) {
+  chrome.action.setBadgeText({text: count.toString()});
+
+  const [bgColor, textColor] = calculateGradientColors(count);
+  chrome.action.setBadgeBackgroundColor({color: bgColor});
+  if (chrome.action.setBadgeTextColor) {
+    chrome.action.setBadgeTextColor({color: textColor});
+  }
 }
