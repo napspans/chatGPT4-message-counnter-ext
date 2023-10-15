@@ -1,8 +1,18 @@
+下記のコードはchatGPT4に対するメッセージ数をカウントするchrome拡張機能です。
+仕様に従いコードを修正してください。
+
+# 設定機能追加
+- 設定画面の追加
+- バッジ表示のオン・オフ
+- 検出するモデルの変更
+  - ```if (body.includes('"model":"gpt-4')) {```
+  - "gpt-4" または "gpt-3"
+background.js
+```
 // 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 const MAX_TIMESTAMPS = 50;
-const TIME_TO_COUNT = 3 * 60 * 60 * 1000;
-
+const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
 
 // HTTPリクエストの監視設定
 chrome.webRequest.onBeforeRequest.addListener(
@@ -11,51 +21,6 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["requestBody"]
 );
 
-// 60秒（60000ミリ秒）ごとにupdateEveryMinuteを実行
-setInterval(updateEveryMinute, 60000);
-
-// 設定項目のデフォルト値
-let showBadge = true;
-let targetModel = "gpt-4";
-
-// 初期設定の読み込み
-chrome.storage.local.get(["showBadge", "targetModel"], (result) => {
-  if (result.hasOwnProperty("showBadge")) {
-    showBadge = result.showBadge;
-  }
-  if (result.hasOwnProperty("targetModel")) {
-    targetModel = result.targetModel;
-  }
-});
-
-// 設定が変更された時に変数を更新
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === "local") {
-    let shouldUpdateBadge = false;
-
-    if (changes.hasOwnProperty("showBadge")) {
-      showBadge = changes.showBadge.newValue;
-      shouldUpdateBadge = true;
-    }
-    if (changes.hasOwnProperty("targetModel")) {
-      targetModel = changes.targetModel.newValue;
-    }
-
-    if (shouldUpdateBadge) {
-      chrome.storage.local.get(['timestamps'], (result) => {
-        const currentCount = result.timestamps ? result.timestamps.length : 0;
-        
-        if (showBadge) {
-          updateBadge(currentCount);
-        } else {
-          chrome.action.setBadgeText({text: ""});
-        }
-      });
-    }
-  }
-});
-
-
 // POSTリクエストを処理する関数
 function handlePostRequest(details) {
   if (details.method !== "POST") return;
@@ -63,27 +28,19 @@ function handlePostRequest(details) {
   const body = decodeURIComponent(
     String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes))
   );
-
-  if (body.includes(`"model":"${targetModel}"`)) {
+  
+  if (body.includes('"model":"gpt-4')) {
     const timestamp = Date.now();
     saveTimestamp(timestamp);
   }
 }
-
 
 // タイムスタンプを保存する関数
 function saveTimestamp(timestamp) {
   chrome.storage.local.get(['timestamps'], (result) => {
     let timestamps = result.timestamps || [];
     timestamps = cleanupTimestamps(timestamps, timestamp);
-    
-    // showBadgeがtrueならばバッジを更新、falseならばバッジを消す
-    if (showBadge) {
-      updateBadge(timestamps.length);
-    } else {
-      chrome.action.setBadgeText({text: ""});
-    }
-
+    updateBadge(timestamps.length);
     chrome.storage.local.set({timestamps});
   });
 }
@@ -97,7 +54,7 @@ function cleanupTimestamps(timestamps, newTimestamp) {
     timestamps = timestamps.slice(-MAX_TIMESTAMPS);
   }
 
-  const threshold = Date.now() - TIME_TO_COUNT;
+  const threshold = Date.now() - THREE_HOURS_MS;
   return timestamps.filter((ts) => ts > threshold);
 }
 
@@ -131,7 +88,7 @@ function calculateGradientColors(count) {
   // RGBA形式に変換
   const bgColor = [r, g, b, 255];
   // 文字色を自動調整
-  const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? [0, 0, 0, 255] : [255, 255, 255, 255];
+  const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 106 ? [0, 0, 0, 255] : [255, 255, 255, 255];
   
   return [bgColor, textColor];
 }
@@ -146,20 +103,41 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+```
 
-// 毎分実行する関数
-function updateEveryMinute() {
-  chrome.storage.local.get(['timestamps'], (result) => {
-    let timestamps = result.timestamps || [];
-
-    if (timestamps.length > MAX_TIMESTAMPS) {
-      timestamps = timestamps.slice(-MAX_TIMESTAMPS);
+manifest.json
+```
+{
+  "manifest_version": 3,
+  "name": "ChatGPT-4 Message Counter",
+  "version": "1.0",
+  "description": "Counts the number of messages sent to ChatGPT-4.",
+  "permissions": [
+    "webRequest",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "images/icon128.png"
     }
-  
-    const threshold = Date.now() - TIME_TO_COUNT;
-    const newTimestamps = timestamps.filter((ts) => ts > threshold);
-
-    // 更新されたtimestampsを保存
-    chrome.storage.local.set({timestamps:newTimestamps});
-  });
+  },
+  "host_permissions": [
+    "https://chat.openai.com/*"
+  ]
 }
+```
+popup.html
+```
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Current Count: <span id="count"></span></h1>
+  </body>
+  <script src="popup.js"></script>
+</html>
+
+```
