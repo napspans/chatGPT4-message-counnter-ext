@@ -14,6 +14,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join('');
   });
 
+  // background.jsからのリスト更新メッセージを受け取る
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "UPDATE_UI") {
+      const { count, timestamps } = message;
+      document.getElementById("count").textContent = count;
+      const timestampListDiv = document.getElementById("timestamps-list");
+      timestampListDiv.innerHTML = timestamps.map((ts, index) => {
+        const date = new Date(ts);
+        return `<div>${index + 1}. ${date.toLocaleString()}</div>`;
+      }).join('');
+    }
+  });
+
   // 設定を読み込む
   chrome.storage.local.get(['showBadge', 'targetModel'], (result) => {
     document.getElementById('show-badge').checked = result.showBadge ?? true;
