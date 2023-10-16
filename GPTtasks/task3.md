@@ -1,3 +1,11 @@
+下記のコードはchatGPT4に対するメッセージ数をカウントするchrome拡張機能です。
+仕様に従いコードを修正してください。
+
+# 機能追加
+- タイムスタンプリストが更新された際にhtml及びバッジの数値を更新するようにしてください。
+
+background.js
+```
 // 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 const MAX_TIMESTAMPS = 50;
@@ -55,15 +63,17 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   }
 });
 
-// 毎分タイムスタンプをアップデートしUI更新する関数
+// 毎分実行する関数
 function updateEveryMinute() {
   chrome.storage.local.get(['timestamps'], (result) => {
     let timestamps = result.timestamps || [];
-    timestamps = updateTimestamps(timestamps, null);
+    timestamps = updateTimestamps(timestamps,null);
+
+    // 更新されたtimestampsを保存
     chrome.storage.local.set({timestamps});
-    updateUI(timestamps);
   });
 }
+
 
 
 // POSTリクエストを処理する関数
@@ -80,24 +90,20 @@ function handlePostRequest(details) {
   }
 }
 
-// UIを更新する関数(バッジ、html)
-function updateUI(timestamps) {
-  const count = timestamps.length;
-  if (showBadge) {
-    updateBadge(count);
-  } else {
-    chrome.action.setBadgeText({text: ""});
-  }
-  chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
-}
-
-// タイムスタンプを追加保存、UI更新する関数
+// タイムスタンプを保存する関数
 function saveTimestamp(timestamp) {
   chrome.storage.local.get(['timestamps'], (result) => {
     let timestamps = result.timestamps || [];
     timestamps = updateTimestamps(timestamps, timestamp);
+    
+    // showBadgeがtrueならばバッジを更新、falseならばバッジを消す
+    if (showBadge) {
+      updateBadge(timestamps.length);
+    } else {
+      chrome.action.setBadgeText({text: ""});
+    }
+
     chrome.storage.local.set({timestamps});
-    updateUI(timestamps);
   });
 }
 
@@ -161,3 +167,131 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+
+```
+
+manifest.json
+```
+{
+  "manifest_version": 3,
+  "name": "ChatGPT-4 Message Counter",
+  "version": "1.0",
+  "description": "Counts the number of messages sent to ChatGPT-4.",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "images/icon128.png"
+    }
+  },
+  "host_permissions": [
+    "https://chat.openai.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "popup.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+
+```
+popup.html
+```
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        width: 300px;
+        height: 400px;
+        margin: 20px;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- メイン画面 -->
+    <div id="main-view">
+      <h1>Current Count: <span id="count"></span></h1>
+      <button id="settings-button">設定</button>
+      <div id="timestamps-list"></div>
+    </div>
+    
+    <!-- 設定画面 -->
+    <div id="settings-view" style="display:none;">
+      <h1>設定</h1>
+      <form id="settings-form">
+        <label>
+          バッジ表示:
+          <input type="checkbox" id="show-badge">
+        </label>
+        <br>
+        <label>
+          検出するモデル:
+          <select id="target-model">
+            <option value="gpt-4">GPT-4</option>
+            <option value="text-davinci">GPT-3</option>
+          </select>
+        </label>
+      </form>
+      <button id="back-button">戻る</button>
+    </div>
+  </body>
+  <script src="popup.js"></script>
+</html>
+```
+
+popup.js
+```
+document.addEventListener("DOMContentLoaded", () => {
+
+  // タイムスタンプのリストを表示
+  chrome.storage.local.get(['timestamps'], (result) => {
+    const timestamps = result.timestamps || [];
+    const count = timestamps.length;
+    document.getElementById("count").textContent = count;
+
+    // タイムスタンプのリストをHTMLで表示
+    const timestampListDiv = document.getElementById("timestamps-list");
+    timestampListDiv.innerHTML = timestamps.map((ts, index) => { // indexを使って順番を振る
+      const date = new Date(ts);
+      return `<div>${index + 1}. ${date.toLocaleString()}</div>`; // ここで `${index + 1}.` を追加
+    }).join('');
+  });
+
+  // 設定を読み込む
+  chrome.storage.local.get(['showBadge', 'targetModel'], (result) => {
+    document.getElementById('show-badge').checked = result.showBadge ?? true;
+    document.getElementById('target-model').value = result.targetModel ?? 'gpt-4';
+  });
+
+  // 設定画面表示
+  document.getElementById('settings-button').addEventListener('click', () => {
+    document.getElementById('main-view').style.display = 'none';
+    document.getElementById('settings-view').style.display = 'block';
+  });
+
+  // 設定画面からメイン画面へ戻る
+  document.getElementById('back-button').addEventListener('click', () => {
+    document.getElementById('main-view').style.display = 'block';
+    document.getElementById('settings-view').style.display = 'none';
+  });
+
+  // 設定保存
+  document.getElementById('settings-form').addEventListener('change', () => {
+    const showBadge = document.getElementById('show-badge').checked;
+    const targetModel = document.getElementById('target-model').value;
+    chrome.storage.local.set({ showBadge, targetModel });
+  });
+});
+
+```
