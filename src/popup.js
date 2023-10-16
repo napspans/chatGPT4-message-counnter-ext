@@ -28,23 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 設定を読み込む
-  chrome.storage.local.get(['showBadge', 'targetModel', 'intervalTime', 'maxTimestamps', 'timeToCount'], (result) => {
+  chrome.storage.local.get(['showBadge', 'targetModel', 'maxTimestamps', 'timeToCount'], (result) => {
     document.getElementById('show-badge').checked = result.showBadge ?? true;
     document.getElementById('target-model').value = result.targetModel ?? 'gpt-4';
-
-    const intervalSelect = document.getElementById('interval-time');
-    const intervalOptions = [10, 20, 30, 40, 50, 60, 120, 180, 240, 300, 600]; // 10秒, 20秒, ..., 10分
-    intervalOptions.forEach((sec) => {
-      const option = document.createElement('option');
-      option.value = sec * 1000;
-      option.text = `${sec}秒`;
-      if (sec >= 60) {
-        option.text = `${sec / 60}分`;
-      }
-      intervalSelect.add(option);
-    });
-
-    intervalSelect.value = result.intervalTime ?? 60 * 1000;// 更新頻度 デフォルト 60秒
     document.getElementById('max-timestamps').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 1000; // タイムスタンプ保持時間 デフォルトは3時間
   });
@@ -65,10 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById('settings-form').addEventListener('change', () => {
     const showBadge = document.getElementById('show-badge').checked;
     const targetModel = document.getElementById('target-model').value;
-    const intervalTime = parseInt(document.getElementById('interval-time').value);
     const maxTimestamps = parseInt(document.getElementById('max-timestamps').value);
     const timeToCount = parseInt(document.getElementById('time-to-count').value) * 1000;
   
-    chrome.storage.local.set({ showBadge, targetModel, intervalTime, maxTimestamps, timeToCount });
+    chrome.storage.local.set({ showBadge, targetModel, maxTimestamps, timeToCount });
   });
 });

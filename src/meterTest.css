@@ -1,0 +1,54 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.meter {
+    position: relative;
+    width: 200px;
+    height: 150px;
+}
+
+.circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 10px solid #e0e0e0;
+    border-top-color: #ffd700;
+    border-radius: 50%;
+    transform: rotate(-90deg);
+}
+
+.fill {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotate(106deg);
+    clip-path: inset(0 50% 0 0);
+}
+
+.speed-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+}

@@ -11,28 +11,20 @@ chrome.webRequest.onBeforeRequest.addListener(
   ["requestBody"]
 );
 
-// 60秒（60000ミリ秒）ごとにupdateEveryMinuteを実行
-// setInterval(updateEveryMinute, 60000);
 
 // 設定項目のデフォルト値
 let showBadge = true;
 let targetModel = "gpt-4";
-let intervalTime = 60000;
 let maxTimestamps = 50;
 let timeToCount = 3 * 60 * 60 * 1000;
 
-let intervalID;
-
 // 初期設定の読み込みとタイマーの設定
-chrome.storage.local.get(["showBadge", "targetModel", "intervalTime", "maxTimestamps", "timeToCount"], (result) => {
+chrome.storage.local.get(["showBadge", "targetModel", "maxTimestamps", "timeToCount"], (result) => {
   if (result.hasOwnProperty("showBadge")) {
     showBadge = result.showBadge;
   }
   if (result.hasOwnProperty("targetModel")) {
     targetModel = result.targetModel;
-  }
-  if (result.hasOwnProperty("intervalTime")) {
-    intervalTime = result.intervalTime;
   }
   if (result.hasOwnProperty("maxTimestamps")) {
     maxTimestamps = result.maxTimestamps;
@@ -40,9 +32,6 @@ chrome.storage.local.get(["showBadge", "targetModel", "intervalTime", "maxTimest
   if (result.hasOwnProperty("timeToCount")) {
     timeToCount = result.timeToCount;
   }
-  
-  // リストの定期更新
-  intervalID = setInterval(updateEveryMinute, intervalTime);
 });
 
 // 設定が変更された時に変数を更新
@@ -69,35 +58,14 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         }
       });
     }
-
-    if (changes.hasOwnProperty("intervalTime")) {
-      intervalTime = changes.intervalTime.newValue;
-      shouldRestartTimer = true;
-    }
     if (changes.hasOwnProperty("maxTimestamps")) {
       maxTimestamps = changes.maxTimestamps.newValue;
     }
     if (changes.hasOwnProperty("timeToCount")) {
       timeToCount = changes.timeToCount.newValue;
     }
-
-    if (shouldRestartTimer) {
-      clearInterval(intervalID);
-      intervalID = setInterval(updateEveryMinute, intervalTime);
-    }
   }
 });
-
-// 毎分タイムスタンプをアップデートしUI更新する関数
-function updateEveryMinute() {
-  chrome.storage.local.get(['timestamps'], (result) => {
-    let timestamps = result.timestamps || [];
-    timestamps = updateTimestamps(timestamps, null);
-    chrome.storage.local.set({timestamps});
-    updateUI(timestamps);
-  });
-}
-
 
 // POSTリクエストを処理する関数
 function handlePostRequest(details) {
