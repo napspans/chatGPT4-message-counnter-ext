@@ -35,6 +35,23 @@
             <option value="text-davinci">GPT-3</option>
           </select>
         </label>
+        <br>
+        <label>
+          更新間隔:
+          <select id="interval-time">
+            <!-- オプションはpopup.jsで動的に生成 -->
+          </select>
+        </label>
+        <br>
+        <label>
+          最大タイムスタンプ数:
+          <input type="number" id="max-timestamps" min="1">
+        </label>
+        <br>
+        <label>
+          カウント期間 (秒):
+          <input type="number" id="time-to-count" min="1">
+        </label>
       </form>
       <button id="back-button">戻る</button>
     </div>
