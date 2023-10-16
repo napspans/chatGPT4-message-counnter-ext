@@ -153,22 +153,22 @@ function updateTimestamps(timestamps, newTimestamp) {
 function calculateGradientColors(count) {
   let r, g, b;
 
-  if (count <= 30) {
+  if (count <= maxTimestamps * 0.5) {
     // 単色: 緑 (R: 127, G: 255, B: 0)
     r = 127;
     g = 255;
     b = 0;
-  } else if (count <= 40) {
+  } else if (count <= maxTimestamps * 0.7) {
     // 緑からオレンジへのグラデーション (R: 127-255, G: 255-110, B: 0)
     r = Math.floor(127 + (255 - 127) * ((count - 30) / (40 - 30)));
     g = Math.floor(255 - (255 - 110) * ((count - 30) / (40 - 30)));
     b = 0;
-  } else if (count <= 45) {
+  } else if (count <= maxTimestamps * 0.8) {
     // オレンジから赤へのグラデーション (R: 255, G: 110-50, B: 0)
     r = 255;
     g = Math.floor(110 - (110 - 50) * ((count - 40) / (45 - 40)));
     b = 0;
-  } else if (count <= 50) {
+  } else if (count <= maxTimestamps * 0.9) {
     // 単色: 赤 (R: 255, G: 50, B: 0)
     r = 255;
     g = 50;
