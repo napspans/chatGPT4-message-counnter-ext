@@ -1,7 +1,7 @@
 // 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
-const MAX_TIMESTAMPS = 50;
-const TIME_TO_COUNT = 3 * 60 * 60 * 1000;
+// const maxTimestamps = 50;
+// const timeToCount = 3 * 60 * 60 * 1000;
 
 
 // HTTPリクエストの監視設定
@@ -12,20 +12,37 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 // 60秒（60000ミリ秒）ごとにupdateEveryMinuteを実行
-setInterval(updateEveryMinute, 60000);
+// setInterval(updateEveryMinute, 60000);
 
 // 設定項目のデフォルト値
 let showBadge = true;
 let targetModel = "gpt-4";
+let intervalTime = 60000;
+let maxTimestamps = 50;
+let timeToCount = 3 * 60 * 60 * 1000;
 
-// 初期設定の読み込み
-chrome.storage.local.get(["showBadge", "targetModel"], (result) => {
+let intervalID;
+
+// 初期設定の読み込みとタイマーの設定
+chrome.storage.local.get(["showBadge", "targetModel", "intervalTime", "maxTimestamps", "timeToCount"], (result) => {
   if (result.hasOwnProperty("showBadge")) {
     showBadge = result.showBadge;
   }
   if (result.hasOwnProperty("targetModel")) {
     targetModel = result.targetModel;
   }
+  if (result.hasOwnProperty("intervalTime")) {
+    intervalTime = result.intervalTime;
+  }
+  if (result.hasOwnProperty("maxTimestamps")) {
+    maxTimestamps = result.maxTimestamps;
+  }
+  if (result.hasOwnProperty("timeToCount")) {
+    timeToCount = result.timeToCount;
+  }
+  
+  // リストの定期更新
+  intervalID = setInterval(updateEveryMinute, intervalTime);
 });
 
 // 設定が変更された時に変数を更新
@@ -51,6 +68,22 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
           chrome.action.setBadgeText({text: ""});
         }
       });
+    }
+
+    if (changes.hasOwnProperty("intervalTime")) {
+      intervalTime = changes.intervalTime.newValue;
+      shouldRestartTimer = true;
+    }
+    if (changes.hasOwnProperty("maxTimestamps")) {
+      maxTimestamps = changes.maxTimestamps.newValue;
+    }
+    if (changes.hasOwnProperty("timeToCount")) {
+      timeToCount = changes.timeToCount.newValue;
+    }
+
+    if (shouldRestartTimer) {
+      clearInterval(intervalID);
+      intervalID = setInterval(updateEveryMinute, intervalTime);
     }
   }
 });
@@ -108,11 +141,11 @@ function updateTimestamps(timestamps, newTimestamp) {
   }
   timestamps.sort();
   
-  if (timestamps.length > MAX_TIMESTAMPS) {
-    timestamps = timestamps.slice(-MAX_TIMESTAMPS);
+  if (timestamps.length > maxTimestamps) {
+    timestamps = timestamps.slice(-maxTimestamps);
   }
 
-  const threshold = Date.now() - TIME_TO_COUNT;
+  const threshold = Date.now() - timeToCount;
   return timestamps.filter((ts) => ts > threshold);
 }
 
