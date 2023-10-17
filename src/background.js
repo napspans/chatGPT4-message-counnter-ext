@@ -1,8 +1,5 @@
 // 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
-// const maxTimestamps = 50;
-// const timeToCount = 3 * 60 * 60 * 1000;
-
 
 // HTTPリクエストの監視設定
 chrome.webRequest.onBeforeRequest.addListener(
@@ -100,6 +97,14 @@ function saveTimestamp(timestamp) {
     chrome.storage.local.set({timestamps});
     updateUI(timestamps);
   });
+
+  // リスト定時更新 リスト追加から3時間後にリスト更新
+  setTimeout(() => {
+    chrome.storage.local.get(['timestamps'], (result) => {
+      let timestamps = result.timestamps || [];
+      updateTimestamps(timestamps, null);
+    });
+  }, timestamp + timeToCount);
 }
 
 // タイムスタンプの処理を行う関数（引数 newTimestamp はオプショナル）
