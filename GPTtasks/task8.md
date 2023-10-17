@@ -1,3 +1,14 @@
+chatGPT4に対するメッセージ数をカウントするchrome拡張機能を作っています。
+
+下記のエラーコードは、拡張機能を初めて読み込みを行い、chatGPTにメッセージを送信した際に発生しました。この時ポップアップは開いていません。
+解決してください。
+
+```
+Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+```
+
+background.js
+```
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 
 // 設定項目のデフォルト値
@@ -141,18 +152,7 @@ function updateUI(timestamps) {
   } else {
     chrome.action.setBadgeText({text: ""});
   }
-  // ここでポップアップがアクティブかどうかを確認
-  chrome.runtime.sendMessage({type: "CHECK_POPUP_ACTIVE"}, (response) => {
-    if(chrome.runtime.lastError) {
-      // エラーがあれば、何もしない
-      return;
-    }
-    if(response && response.popupActive) {
-      // ポップアップがアクティブな場合のみ、メッセージを送信
-      chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
-    }
-  });
-  
+  chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
 }
 
 // バッジのスタイルを更新する関数
@@ -165,3 +165,126 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+```
+
+popup.js
+```
+document.addEventListener("DOMContentLoaded", () => {
+
+  // タイムスタンプのリストを表示
+  chrome.storage.local.get(['timestamps'], (result) => {
+    const timestamps = result.timestamps || [];
+    const count = timestamps.length;
+    document.getElementById("count").textContent = count;
+
+    // タイムスタンプのリストをHTMLで表示
+    const timestampListDiv = document.getElementById("timestamps-list");
+    timestampListDiv.innerHTML = timestamps.map((ts, index) => { // indexを使って順番を振る
+      const date = new Date(ts);
+      return `<div>${index + 1}. ${date.toLocaleString()}</div>`; // ここで `${index + 1}.` を追加
+    }).join('');
+  });
+
+  // background.jsからのリスト更新メッセージを受け取る
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "UPDATE_UI") {
+      const { count, timestamps } = message;
+      document.getElementById("count").textContent = count;
+      const timestampListDiv = document.getElementById("timestamps-list");
+      timestampListDiv.innerHTML = timestamps.map((ts, index) => {
+        const date = new Date(ts);
+        return `<div>${index + 1}. ${date.toLocaleString()}</div>`;
+      }).join('');
+    }
+  });
+
+  // 設定を読み込む
+  chrome.storage.local.get(['showBadge', 'targetModel', 'maxTimestamps', 'timeToCount'], (result) => {
+    document.getElementById('show-badge').checked = result.showBadge ?? true;
+    document.getElementById('target-model').value = result.targetModel ?? 'gpt-4';
+    document.getElementById('max-timestamps').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
+    document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 1000; // タイムスタンプ保持時間 デフォルトは3時間
+  });
+
+  // 設定画面表示
+  document.getElementById('settings-button').addEventListener('click', () => {
+    document.getElementById('main-view').style.display = 'none';
+    document.getElementById('settings-view').style.display = 'block';
+  });
+
+  // 設定画面からメイン画面へ戻る
+  document.getElementById('back-button').addEventListener('click', () => {
+    document.getElementById('main-view').style.display = 'block';
+    document.getElementById('settings-view').style.display = 'none';
+  });
+
+  // 設定保存
+  document.getElementById('settings-form').addEventListener('change', () => {
+    const showBadge = document.getElementById('show-badge').checked;
+    const targetModel = document.getElementById('target-model').value;
+    const maxTimestamps = parseInt(document.getElementById('max-timestamps').value);
+    const timeToCount = parseInt(document.getElementById('time-to-count').value) * 1000;
+  
+    chrome.storage.local.set({ showBadge, targetModel, maxTimestamps, timeToCount });
+  });
+});
+
+```
+
+popup.html
+```
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        width: 300px;
+        height: 400px;
+        margin: 20px;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- メイン画面 -->
+    <div id="main-view">
+      <h1>メッセージ数: <span id="count"></span></h1>
+      <button id="settings-button">設定</button>
+      <div id="timestamps-list"></div>
+    </div>
+    
+    <!-- 設定画面 -->
+    <div id="settings-view" style="display:none;">
+      <h1>設定</h1>
+      <form id="settings-form">
+        <label>
+          バッジ表示:
+          <input type="checkbox" id="show-badge">
+        </label>
+        <br>
+        <label>
+          検出するモデル:
+          <select id="target-model">
+            <option value="gpt-4">GPT-4</option>
+            <option value="text-davinci">GPT-3</option>
+          </select>
+        </label>
+        <br>
+        <label>
+          最大タイムスタンプ数:
+          <input type="number" id="max-timestamps" min="1">
+        </label>
+        <br>
+        <label>
+          カウント期間 (秒):
+          <input type="number" id="time-to-count" min="1">
+        </label>
+      </form>
+      <button id="back-button">戻る</button>
+    </div>
+  </body>
+  <script src="popup.js"></script>
+</html>
+
+```
