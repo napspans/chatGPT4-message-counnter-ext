@@ -1,123 +1,99 @@
-// 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 
-// HTTPリクエストの監視設定
-chrome.webRequest.onBeforeRequest.addListener(
-  handlePostRequest,
-  { urls: FILTER_URLS },
-  ["requestBody"]
-);
-
-
 // 設定項目のデフォルト値
-let showBadge = true;
-let targetModel = "gpt-4";
-let maxTimestamps = 50;
-let timeToCount = 3 * 60 * 60 * 1000;
+let config = {
+  showBadge: true,
+  targetModel: "gpt-4",
+  maxTimestamps: 50,
+  timeToCount: 3 * 60 * 60 * 1000
+};
+
+// 初期設定
+initializeConfig();
+
+// Event listeners
+chrome.webRequest.onBeforeRequest.addListener(handlePostRequest, { urls: FILTER_URLS }, ["requestBody"]);
+chrome.storage.onChanged.addListener(handleConfigChange);
+chrome.tabs.onUpdated.addListener(handleTabUpdate);
 
 // 初期設定の読み込みとタイマーの設定
-chrome.storage.local.get(["showBadge", "targetModel", "maxTimestamps", "timeToCount"], (result) => {
-  if (result.hasOwnProperty("showBadge")) {
-    showBadge = result.showBadge;
-  }
-  if (result.hasOwnProperty("targetModel")) {
-    targetModel = result.targetModel;
-  }
-  if (result.hasOwnProperty("maxTimestamps")) {
-    maxTimestamps = result.maxTimestamps;
-  }
-  if (result.hasOwnProperty("timeToCount")) {
-    timeToCount = result.timeToCount;
-  }
-});
-
-// 設定が変更された時に変数を更新
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === "local") {
-    let shouldUpdateBadge = false;
-
-    if (changes.hasOwnProperty("showBadge")) {
-      showBadge = changes.showBadge.newValue;
-      shouldUpdateBadge = true;
+function initializeConfig() {
+  chrome.storage.local.get(Object.keys(config), (result) => {
+    for (const [key, value] of Object.entries(result)) {
+      config[key] = value;
     }
-    if (changes.hasOwnProperty("targetModel")) {
-      targetModel = changes.targetModel.newValue;
-    }
-
-    if (shouldUpdateBadge) {
-      chrome.storage.local.get(['timestamps'], (result) => {
-        const currentCount = result.timestamps ? result.timestamps.length : 0;
-        
-        if (showBadge) {
-          updateBadge(currentCount);
-        } else {
-          chrome.action.setBadgeText({text: ""});
-        }
-      });
-    }
-    if (changes.hasOwnProperty("maxTimestamps")) {
-      maxTimestamps = changes.maxTimestamps.newValue;
-    }
-    if (changes.hasOwnProperty("timeToCount")) {
-      timeToCount = changes.timeToCount.newValue;
-    }
-  }
-});
+  });
+}
 
 // POSTリクエストを処理する関数
 function handlePostRequest(details) {
   if (details.method !== "POST") return;
 
-  const body = decodeURIComponent(
-    String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes))
-  );
-
-  if (body.includes(`"model":"${targetModel}"`)) {
+  const body = decodeURIComponent(String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes)));
+  if (body.includes(`"model":"${config.targetModel}"`)) {
     const timestamp = Date.now();
-    saveTimestamp(timestamp);
+    saveAndUpdateTimestamps(timestamp);
   }
 }
 
-// UIを更新する関数(バッジ、html)
-function updateUI(timestamps) {
-  const count = timestamps.length;
-  if (showBadge) {
-    updateBadge(count);
-  } else {
-    chrome.action.setBadgeText({text: ""});
+// 設定が変更された時に変数を更新
+function handleConfigChange(changes, namespace) {
+  if (namespace !== "local") return;
+
+  let shouldUpdateBadge = false;
+  for (const [key, { newValue }] of Object.entries(changes)) {
+    config[key] = newValue;
+    if (key === "showBadge") {
+      shouldUpdateBadge = true;
+    }
   }
-  chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
+
+  if (shouldUpdateBadge) {
+    updateBadgeFromStorage();
+  }
+}
+
+// タブが開かれたまたは更新されたときにタイムスタンプリストを更新する関数
+function handleTabUpdate(tabId, changeInfo, tab) {
+  if (changeInfo.status === 'complete' && tab.url.includes('chat.openai.com')) {
+    saveAndUpdateTimestamps(null);
+  }
+}
+
+// バッジのスタイルを更新する関数
+function updateBadgeFromStorage() {
+  chrome.storage.local.get(['timestamps'], (result) => {
+    const currentCount = result.timestamps ? result.timestamps.length : 0;
+    if (config.showBadge) {
+      updateBadge(currentCount);
+    } else {
+      chrome.action.setBadgeText({text: ""});
+    }
+  });
 }
 
 // タイムスタンプを追加保存、UI更新する関数
-function saveTimestamp(timestamp) {
+function saveAndUpdateTimestamps(newTimestamp) {
   chrome.storage.local.get(['timestamps'], (result) => {
     let timestamps = result.timestamps || [];
-    timestamps = updateTimestamps(timestamps, timestamp);
-    chrome.storage.local.set({timestamps});
+    timestamps = updateTimestamps(timestamps, newTimestamp);
+    chrome.storage.local.set({ timestamps });
     updateUI(timestamps);
   });
-
-  // リスト定時更新 リスト追加から3時間後にリスト更新
-  setTimeout(() => {
-    chrome.storage.local.get(['timestamps'], (result) => {
-      let timestamps = result.timestamps || [];
-      updateTimestamps(timestamps, null);
-    });
-  }, timestamp + timeToCount);
 }
 
 // タイムスタンプの処理を行う関数（引数 newTimestamp はオプショナル）
 function updateTimestamps(timestamps, newTimestamp) {
+  // 第二引数からあればリストに追加
   if (newTimestamp) {
     timestamps.push(newTimestamp);
   }
   timestamps.sort();
-  
+  // 個数制限処理
   if (timestamps.length > maxTimestamps) {
     timestamps = timestamps.slice(-maxTimestamps);
   }
-
+  // 時間制限処理
   const threshold = Date.now() - timeToCount;
   return timestamps.filter((ts) => ts > threshold);
 }
@@ -148,13 +124,23 @@ function calculateGradientColors(count) {
     b = 0;
   }
   
-
   // RGBA形式に変換
   const bgColor = [r, g, b, 255];
   // 文字色を自動調整
   const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? [0, 0, 0, 255] : [255, 255, 255, 255];
   
   return [bgColor, textColor];
+}
+
+// UIを更新する関数(バッジ、html)
+function updateUI(timestamps) {
+  const count = timestamps.length;
+  if (showBadge) {
+    updateBadge(count);
+  } else {
+    chrome.action.setBadgeText({text: ""});
+  }
+  chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
 }
 
 // バッジのスタイルを更新する関数
@@ -167,15 +153,3 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
-
-// "chat.openai.com" のページが開かれたまたは更新されたときにタイムスタンプリストを更新
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url.includes('chat.openai.com')) {
-    chrome.storage.local.get(['timestamps'], (result) => {
-      let timestamps = result.timestamps || [];
-      timestamps = updateTimestamps(timestamps, null); // newTimestamp は null なので、既存のタイムスタンプのみをフィルタします
-      chrome.storage.local.set({timestamps});
-      updateUI(timestamps);
-    });
-  }
-});
