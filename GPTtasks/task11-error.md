@@ -1,3 +1,14 @@
+下記のコードはchatGPT4に対するメッセージ数をカウントするchrome拡張機能です。
+下記のようなエラーが発生しました。
+なぜですか
+
+# エラーコード
+```
+Error handling response: TypeError: Error in invocation of action.setBadgeBackgroundColor(object details, optional function callback): Error at parameter 'details': Error at property 'color': Value did not match any choice. at updateBadge (chrome-extension://lnjphfjdonhbannkphminhadlmhpegdn/background.js:163:17) at updateUI (chrome-extension://lnjphfjdonhbannkphminhadlmhpegdn/background.js:140:5) at chrome-extension://lnjphfjdonhbannkphminhadlmhpegdn/background.js:82:5
+```
+# コード
+background.js
+```javascript
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 
 // 設定項目のデフォルト値
@@ -101,7 +112,7 @@ function updateTimestamps(timestamps, newTimestamp) {
 
 // グラデーション風のバッジ背景色とテキスト色を計算する関数
 function calculateGradientColors(count) {
-  let r = 127, g = 255, b = 0;
+  let r, g, b;
 
   if (count <= config.maxTimestamps * 0.5) {
     // 単色: 緑 (R: 127, G: 255, B: 0)
@@ -123,20 +134,13 @@ function calculateGradientColors(count) {
     r = 255;
     g = 50;
     b = 0;
-  } else {
-    // countがconfig.maxTimestamps * 0.9より大きい場合の処理
-    r = 255;
-    g = 50;
-    b = 0;
   }
   
   // RGBA形式に変換
   const bgColor = [r, g, b, 255];
   // 文字色を自動調整
-  // const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? [0, 0, 0, 255] : [255, 255, 255, 255];
-  // 文字色を自動調整
-  const textColor = count > config.maxTimestamps * 0.8 ? [255, 255, 255, 255] : [0, 0, 0, 255] ;
-
+  const textColor = (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? [0, 0, 0, 255] : [255, 255, 255, 255];
+  
   return [bgColor, textColor];
 }
 
@@ -172,3 +176,38 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+
+```
+
+manifest.json
+```json
+{
+  "manifest_version": 3,
+  "name": "ChatGPT-4 Message Counter",
+  "version": "1.0",
+  "description": "Counts the number of messages sent to ChatGPT-4.",
+  "permissions": [
+    "webRequest",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "images/icon128.png"
+    }
+  },
+  "host_permissions": [
+    "https://chat.openai.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "popup.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+
+```
