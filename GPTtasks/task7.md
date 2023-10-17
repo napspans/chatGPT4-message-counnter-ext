@@ -1,3 +1,13 @@
+下記のコードはchatGPT4に対するメッセージ数をカウントするchrome拡張機能です。
+エラーコードを解析して修正してください。
+
+# エラーコード
+```
+Error in event handler: TypeError: Cannot read properties of undefined (reading 'includes') at handleTabUpdate (chrome-extension://lnjphfjdonhbannkphminhadlmhpegdn/background.js:58:51)
+```
+# コード
+background.js
+```javascript
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 
 // 設定項目のデフォルト値
@@ -55,11 +65,10 @@ function handleConfigChange(changes, namespace) {
 
 // タブが開かれたまたは更新されたときにタイムスタンプリストを更新する関数
 function handleTabUpdate(tabId, changeInfo, tab) {
-  if (changeInfo.status === 'complete' && tab && tab.url && tab.url.includes('chat.openai.com')) {
+  if (changeInfo.status === 'complete' && tab.url.includes('chat.openai.com')) {
     saveAndUpdateTimestamps(null);
   }
 }
-
 
 // バッジのスタイルを更新する関数
 function updateBadgeFromStorage() {
@@ -91,11 +100,11 @@ function updateTimestamps(timestamps, newTimestamp) {
   }
   timestamps.sort();
   // 個数制限処理
-  if (timestamps.length > config.maxTimestamps) {
-    timestamps = timestamps.slice(-config.maxTimestamps);
+  if (timestamps.length > maxTimestamps) {
+    timestamps = timestamps.slice(-maxTimestamps);
   }
   // 時間制限処理
-  const threshold = Date.now() - config.timeToCount;
+  const threshold = Date.now() - timeToCount;
   return timestamps.filter((ts) => ts > threshold);
 }
 
@@ -103,22 +112,22 @@ function updateTimestamps(timestamps, newTimestamp) {
 function calculateGradientColors(count) {
   let r, g, b;
 
-  if (count <= config.maxTimestamps * 0.5) {
+  if (count <= maxTimestamps * 0.5) {
     // 単色: 緑 (R: 127, G: 255, B: 0)
     r = 127;
     g = 255;
     b = 0;
-  } else if (count <= config.maxTimestamps * 0.7) {
+  } else if (count <= maxTimestamps * 0.7) {
     // 緑からオレンジへのグラデーション (R: 127-255, G: 255-110, B: 0)
     r = Math.floor(127 + (255 - 127) * ((count - 30) / (40 - 30)));
     g = Math.floor(255 - (255 - 110) * ((count - 30) / (40 - 30)));
     b = 0;
-  } else if (count <= config.maxTimestamps * 0.8) {
+  } else if (count <= maxTimestamps * 0.8) {
     // オレンジから赤へのグラデーション (R: 255, G: 110-50, B: 0)
     r = 255;
     g = Math.floor(110 - (110 - 50) * ((count - 40) / (45 - 40)));
     b = 0;
-  } else if (count <= config.maxTimestamps * 0.9) {
+  } else if (count <= maxTimestamps * 0.9) {
     // 単色: 赤 (R: 255, G: 50, B: 0)
     r = 255;
     g = 50;
@@ -136,23 +145,12 @@ function calculateGradientColors(count) {
 // UIを更新する関数(バッジ、html)
 function updateUI(timestamps) {
   const count = timestamps.length;
-  if (config.showBadge) {
+  if (showBadge) {
     updateBadge(count);
   } else {
     chrome.action.setBadgeText({text: ""});
   }
-  // ここでポップアップがアクティブかどうかを確認
-  chrome.runtime.sendMessage({type: "CHECK_POPUP_ACTIVE"}, (response) => {
-    if(chrome.runtime.lastError) {
-      // エラーがあれば、何もしない
-      return;
-    }
-    if(response && response.popupActive) {
-      // ポップアップがアクティブな場合のみ、メッセージを送信
-      chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
-    }
-  });
-  
+  chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
 }
 
 // バッジのスタイルを更新する関数
@@ -165,3 +163,38 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+
+```
+
+manifest.json
+```json
+{
+  "manifest_version": 3,
+  "name": "ChatGPT-4 Message Counter",
+  "version": "1.0",
+  "description": "Counts the number of messages sent to ChatGPT-4.",
+  "permissions": [
+    "webRequest",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "images/icon128.png"
+    }
+  },
+  "host_permissions": [
+    "https://chat.openai.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup.html", "popup.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
+
+```

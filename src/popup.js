@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // background.jsからのリスト更新メッセージを受け取る
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "CHECK_POPUP_ACTIVE") {
+      sendResponse({popupActive: true});
+    }
     if (message.type === "UPDATE_UI") {
       const { count, timestamps } = message;
       document.getElementById("count").textContent = count;
