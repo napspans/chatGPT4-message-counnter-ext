@@ -1,3 +1,11 @@
+下記のコードはchatGPT4に対するメッセージ数をカウントするchrome拡張機能です。
+仕様に従いコードを修正してください。
+
+# 機能追加
+- "chat.openai.com"のページを開いたときまたは更新されたときにタイムスタンプリストを更新する。
+
+background.js
+```javascript
 // 定数の定義
 const FILTER_URLS = ["https://chat.openai.com/backend-api/conversation"];
 
@@ -167,15 +175,4 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
-
-// "chat.openai.com" のページが開かれたまたは更新されたときにタイムスタンプリストを更新
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url.includes('chat.openai.com')) {
-    chrome.storage.local.get(['timestamps'], (result) => {
-      let timestamps = result.timestamps || [];
-      timestamps = updateTimestamps(timestamps, null); // newTimestamp は null なので、既存のタイムスタンプのみをフィルタします
-      chrome.storage.local.set({timestamps});
-      updateUI(timestamps);
-    });
-  }
-});
+```
