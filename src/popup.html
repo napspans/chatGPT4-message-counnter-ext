@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <script src='plotly.min.js'></script>
     <style>
       body {
         width: 300px;
@@ -14,6 +15,7 @@
   <body>
     <!-- メイン画面 -->
     <div id="main-view">
+      <div id="countGauge"></div>
       <h1>メッセージ数: <span id="count"></span></h1>
       <button id="settings-button">設定</button>
       <div id="timestamps-list"></div>
