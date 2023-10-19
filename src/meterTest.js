@@ -18,7 +18,9 @@ const data = [
   }
 ];
 
-const layout = { width: 600, height: 400 };
+const layout = { width: 300,
+  height: 200,
+  margin: { t: 25, b: 25, l: 25, r: 25 }};
 Plotly.newPlot('container', data, layout,{displayModeBar: false});
 
 let v = 0
