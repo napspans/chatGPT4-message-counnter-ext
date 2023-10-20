@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <script src='plotly.min.js'></script>
     <style>
       body {
         width: 300px;
@@ -14,7 +15,8 @@
   <body>
     <!-- メイン画面 -->
     <div id="main-view">
-      <h1>Current Count: <span id="count"></span></h1>
+      <div id="countGauge"></div>
+      <h1>メッセージ数: <span id="count"></span></h1>
       <button id="settings-button">設定</button>
       <div id="timestamps-list"></div>
     </div>
@@ -34,6 +36,16 @@
             <option value="gpt-4">GPT-4</option>
             <option value="text-davinci">GPT-3</option>
           </select>
+        </label>
+        <br>
+        <label>
+          最大タイムスタンプ数:
+          <input type="number" id="max-timestamps" min="1">
+        </label>
+        <br>
+        <label>
+          カウント期間 (秒):
+          <input type="number" id="time-to-count" min="1">
         </label>
       </form>
       <button id="back-button">戻る</button>
