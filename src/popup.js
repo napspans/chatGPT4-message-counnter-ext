@@ -1,5 +1,12 @@
 // ゲージ表示用の初期表示
-const layout = { width: 300, height: 200,margin: { t: 25, b: 25, l: 25, r: 25 }}; // popup.html の幅に合わせて調整
+const layout = {
+  width: 260, 
+  height: 200,
+  margin: { t: 25, b: 25, l: 25, r: 25 },
+  paper_bgcolor: "#00000000",
+  font: { color: "white"}
+}; 
+
 const data = [
   {
     domain: { x: [0, 1], y: [0, 1] },
@@ -11,10 +18,11 @@ const data = [
       axis: {
         visible: true,
         range: [0, 50],
-        dtick: 10
+        dtick: 10,
+        color: ''
       },
       bar: { color: "#FFFFFF" },
-      bordercolor: "#00000000"
+      bordercolor: "#545454"
     }
   }
 ];
@@ -30,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxRange = result.maxTimestamps || 50;
     const count = timestamps.length;
     updateGauge(count, maxRange);
-    document.getElementById("count").textContent = count;
+    // document.getElementById("count").textContent = count;
 
     // タイムスタンプのリストをHTMLで表示
     const timestampListDiv = document.getElementById("timestamps-list");
