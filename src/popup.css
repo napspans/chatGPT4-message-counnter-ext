@@ -105,3 +105,79 @@ button:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: #666;  
 }
+
+/*                   */
+/* settings スタイル */
+/*                   */
+#settings-item {
+  border-radius: 5px;
+  background-color: #292a2d;
+  padding: 10px;
+  margin-top: 6px;
+  overflow: auto; /* もし内容が多くなった場合にスクロールを可能にするため */
+}
+
+
+/* トグル UI */
+.toggleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toggle-button-003 {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 40px;
+  height: 10px;
+  border-radius: 50px;
+  background-color: #dddddd;
+  cursor: pointer;
+}
+.toggle-button-003:has(:checked) {
+  background-color: #4ba2d8;
+}
+.toggle-button-003::after {
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgb(0 0 0 / 20%);
+  background: #fff;
+  content: '';
+}
+.toggle-button-003:has(:checked)::after {
+  left: 20px;
+}
+.toggle-button-003 input {
+  display: none;
+}
+
+
+/* セレクトボックスボックスUI */
+.selectBoxContainer {
+  font-size: 13px;
+}
+select{
+  background-color: #292a2d;
+  color: #fff;
+  border-radius: 5px;
+  height: 2rem;
+  width: 100%;
+  font-size: 16px;
+  border: 1px solid #ffffff;
+}
+
+/* インプットナンバー スタイル */
+input[type=number] {
+  background-color: #292a2d;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 90%;
+  height: 20px;
+  padding: 5px 10px;
+  border: 1px solid #ffffff;
+}
+

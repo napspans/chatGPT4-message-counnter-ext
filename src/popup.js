@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('target-model').value = result.targetModel ?? 'gpt-4';
     document.getElementById('max-timestamps').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('countGauge').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
-    document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 1000; // タイムスタンプ保持時間 デフォルトは3時間
+    document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 60 / 1000; // タイムスタンプ保持時間 デフォルトは3時間(180分)
     document.getElementById("countGauge").setAttribute("value", result.maxTimestamps ?? 50);  // ゲージのレンジ更新
     // // ゲージを描画
     // updateGauge(null, maxRange);
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const showBadge = document.getElementById('show-badge').checked;
     const targetModel = document.getElementById('target-model').value;
     const maxTimestamps = parseInt(document.getElementById('max-timestamps').value);
-    const timeToCount = parseInt(document.getElementById('time-to-count').value) * 1000;
+    const timeToCount = parseInt(document.getElementById('time-to-count').value) * 60 * 1000;
     //ゲージ更新
     updateGauge(null,maxTimestamps);
 
