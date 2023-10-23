@@ -3,52 +3,64 @@
   <head>
     <meta charset="UTF-8">
     <script src='plotly.min.js'></script>
-    <style>
-      body {
-        width: 300px;
-        height: 400px;
-        margin: 20px;
-        padding: 0;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="popup.css">
   </head>
   <body>
     <!-- メイン画面 -->
     <div id="main-view">
-      <div id="countGauge"></div>
-      <h1>メッセージ数: <span id="count"></span></h1>
-      <button id="settings-button">設定</button>
-      <div id="timestamps-list"></div>
+      <div class="header">
+        <h1>message counter<span id="count"></span></h1>
+        <button id="settings-button">&#9881;</button>
+      </div>
+      <div class="main-items">
+        <div id="countGauge"></div>
+        <div id="timestamps-list"></div>
+      </div>
     </div>
     
     <!-- 設定画面 -->
     <div id="settings-view" style="display:none;">
-      <h1>設定</h1>
-      <form id="settings-form">
-        <label>
-          バッジ表示:
-          <input type="checkbox" id="show-badge">
-        </label>
-        <br>
-        <label>
-          検出するモデル:
-          <select id="target-model">
-            <option value="gpt-4">GPT-4</option>
-            <option value="text-davinci">GPT-3</option>
-          </select>
-        </label>
-        <br>
-        <label>
-          最大タイムスタンプ数:
-          <input type="number" id="max-timestamps" min="1">
-        </label>
-        <br>
-        <label>
-          カウント期間 (秒):
-          <input type="number" id="time-to-count" min="1">
-        </label>
-      </form>
-      <button id="back-button">戻る</button>
+      <div class="header">
+        <button id="back-button">&lt;</button>
+        <h1>Settings</h1>
+      </div>
+      <div class="main-items">
+        <form id="settings-form">
+          <!-- 編集中 -->
+          <div id="settings-item">
+            <div class="toggleContainer">
+              <span>バッジ表示</span>
+              <label class="toggle-button-003">
+                <input type="checkbox" id="show-badge" />
+              </label>
+            </div>
+          </div>
+
+          <div id="settings-item">
+            <div class="selectBoxContainer">
+              <span>検出するモデル</span>
+              <select id="target-model">
+                <option value="gpt-4">GPT-4</option>
+                <option value="text-davinci">GPT-3</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="settings-item">
+            <div class="selectBoxContainer">
+              <span>最大タイムスタンプ数（１～ ）</span>
+              <input type="number" id="max-timestamps" min="1">
+            </div>
+          </div>
+
+          <div id="settings-item">
+            <div class="selectBoxContainer">
+              <span>カウント期間 (分)</span>
+              <input type="number" id="time-to-count" min="1">
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </body>
   <script src="popup.js"></script>

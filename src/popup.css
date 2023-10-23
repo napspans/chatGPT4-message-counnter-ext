@@ -1,0 +1,183 @@
+body {
+  width: 300px;
+  height: 400px;
+  margin: 0;
+  padding: 0; /* こちらを0pxに修正 */
+  background-color: #202123;
+  color: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #333;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 100; /* これを追加 */
+  box-sizing: border-box;
+}
+
+.main-items {
+  margin: 80px 20px 20px 20px; /* 上部のmarginを80pxに設定 */
+  padding: 0;
+  height: calc(100% - 100px); /* 全体の高さからヘッダーと余白を引いたもの */
+  overflow-y: auto; /* main-items内でスクロールを表示する */
+}
+
+h1{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 18px;
+}
+
+button {
+  background-color: #444;
+  color: #fff;
+  border: none;
+  padding: 2px 13px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 20px;
+}
+button:hover {
+  background-color: #555;
+}
+
+#settings-button {
+  margin-left: auto; /* これにより、ボタンがヘッダーの右側に配置されます */
+}
+
+#back-button {
+  margin-right: auto; /* これにより、ボタンがヘッダーの左側に配置されます */
+}
+
+#timestamps-list {
+  border-radius: 5px;
+  background-color: #292a2d;
+  padding: 10px;
+  margin-top: 20px;
+  overflow: auto; /* もし内容が多くなった場合にスクロールを可能にするため */
+}
+
+#timestamps-list div {
+  padding: 8px 10px;
+  font-size: 15px;
+  font-family: 'Arial', sans-serif;
+  border-bottom: 1px solid #444;
+  color: #ddd;
+}
+
+#timestamps-list div:last-child {
+  border-bottom: none; /* 最後のアイテムの罫線を消す */
+}
+
+#timestamps-list div:hover {
+  background-color: #333; /* マウスオーバー時の背景色 */
+}
+
+/* スクロールバー全体のスタイル */
+::-webkit-scrollbar {
+  width: 10px;  /* スクロールバーの幅 */
+}
+
+/* トラック（スクロールバーの背景）のスタイル */
+::-webkit-scrollbar-track {
+  background: #292a2d;  /* スクロールトラックの背景色 */
+  border-radius: 5px;
+}
+
+/* ハンドル（スクロールする部分）のスタイル */
+::-webkit-scrollbar-thumb {
+  background: #555;  /* スクロールバーのハンドルの色 */
+  border-radius: 5px;
+}
+
+/* ハンドルのマウスオーバー時のスタイル */
+::-webkit-scrollbar-thumb:hover {
+  background: #666;  
+}
+
+/*                   */
+/* settings スタイル */
+/*                   */
+#settings-item {
+  border-radius: 5px;
+  background-color: #292a2d;
+  padding: 10px;
+  margin-top: 6px;
+  overflow: auto; /* もし内容が多くなった場合にスクロールを可能にするため */
+}
+
+
+/* トグル UI */
+.toggleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toggle-button-003 {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  width: 40px;
+  height: 10px;
+  border-radius: 50px;
+  background-color: #dddddd;
+  cursor: pointer;
+}
+.toggle-button-003:has(:checked) {
+  background-color: #4ba2d8;
+}
+.toggle-button-003::after {
+  position: absolute;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgb(0 0 0 / 20%);
+  background: #fff;
+  content: '';
+}
+.toggle-button-003:has(:checked)::after {
+  left: 20px;
+}
+.toggle-button-003 input {
+  display: none;
+}
+
+
+/* セレクトボックスボックスUI */
+.selectBoxContainer {
+  font-size: 13px;
+}
+select{
+  background-color: #292a2d;
+  color: #fff;
+  border-radius: 5px;
+  height: 2rem;
+  width: 100%;
+  font-size: 16px;
+  border: 1px solid #ffffff;
+}
+
+/* インプットナンバー スタイル */
+input[type=number] {
+  background-color: #292a2d;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 90%;
+  height: 20px;
+  padding: 5px 10px;
+  border: 1px solid #ffffff;
+}
+
