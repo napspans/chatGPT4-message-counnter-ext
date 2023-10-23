@@ -28,11 +28,15 @@ function initializeConfig() {
 // POSTリクエストを処理する関数
 function handlePostRequest(details) {
   if (details.method !== "POST") return;
-
-  const body = decodeURIComponent(String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes)));
-  if (body.includes(`"model":"${config.targetModel}`)) {
-    const timestamp = Date.now();
-    saveAndUpdateTimestamps(timestamp);
+  try {
+    const body = decodeURIComponent(String.fromCharCode.apply(null, new Uint8Array(details.requestBody.raw[0].bytes)));
+    // 以降の処理
+    if (body.includes(`"model":"${config.targetModel}`)) {
+      const timestamp = Date.now();
+      saveAndUpdateTimestamps(timestamp);
+    }
+  } catch (e) {
+    console.error('デコードに失敗しました:', e);
   }
 }
 
