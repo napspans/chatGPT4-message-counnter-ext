@@ -2,7 +2,7 @@
 const layout = {
   width: 260, 
   height: 200,
-  margin: { t: 25, b: 25, l: 25, r: 25 },
+  margin: { t: 0, b: 0, l: 25, r: 25 },
   paper_bgcolor: "#00000000",
   font: { color: "white"}
 }; 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('max-timestamps').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('countGauge').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 60 / 1000; // タイムスタンプ保持時間 デフォルトは3時間(180分)
-    document.getElementById("countGauge").setAttribute("value", result.maxTimestamps ?? 50);  // ゲージのレンジ更新
+    // document.getElementById("countGauge").setAttribute("value", result.maxTimestamps ?? 50);  // ゲージのレンジ更新
     // // ゲージを描画
     // updateGauge(null, maxRange);
 
@@ -109,56 +109,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
   //ゲージをアップデートする関数 countはオプション
   const updateGauge = (count, maxRange) => {
-    const maxTimestamps = document.getElementById("countGauge").getAttribute("value");
+    // const maxTimestamps = document.getElementById("countGauge").getAttribute("value");
     // countがあったら数値を更新する。
-    if(!count){
-      count = data[0].value;
-    }
+
     if(!maxRange){
       maxRange = data[0].gauge.axis.range;
     }
-    const bgColor = calculateGradientColors(count, maxTimestamps);
-    data[0].gauge.bar.color = bgColor;
+    if(!count){
+      count = data[0].value;
+    }
+
     data[0].value = count;
 
-    data[0].gauge.axis.range = [0, maxRange];
+    const bgColor = calculateGradientColors(count, maxRange);
+    data[0].gauge.bar.color = bgColor;
+    data[0].gauge.axis.range = [0, maxRange];    
 
-    Plotly.update('countGauge', { 'value': [count] }, layout);
+    Plotly.relayout('countGauge', { 'gauge.bar.color': bgColor });
+    Plotly.update('countGauge', { 'value': [count] }, (layout));
   };
 
-  // グラデーション風のバッジ背景色とテキスト色を計算する関数
-  function calculateGradientColors(count, maxTimestamps) {
-    let r = 127, g = 255, b = 0;
+  // barの色を変更
+  function calculateGradientColors(count, maxRange) {
+    let r = 14, g = 122, b = 0;
 
-    if (count <= maxTimestamps * 0.5) {
-      // 単色: 緑 (R: 127, G: 255, B: 0)
-      r = 127;
-      g = 255;
+    const ratio = count / maxRange;
+  
+    if (ratio < 0.5) {
+      // 単色: 緑 (r=14 g=122 b=0)
+      r = 14;
+      g = 122;
       b = 0;
-    } else if (count <= maxTimestamps * 0.7) {
-      // 緑からオレンジへのグラデーション (R: 127-255, G: 255-110, B: 0)
-      r = Math.floor(127 + (255 - 127) * ((count - 30) / (40 - 30)));
-      g = Math.floor(255 - (255 - 110) * ((count - 30) / (40 - 30)));
+    } else if (ratio >= 0.5 && ratio < 0.7) {
+      // 緑からオレンジ r=14 g=122 b=0 から r=196 g=88 b=0
+      const gradientRatio = (ratio - 0.5) / 0.2;
+      r = 14 + Math.round((196 - 14) * gradientRatio);
+      g = 122 + Math.round((88 - 122) * gradientRatio);
       b = 0;
-    } else if (count <= maxTimestamps * 0.8) {
-      // オレンジから赤へのグラデーション (R: 255, G: 110-50, B: 0)
-      r = 255;
-      g = Math.floor(110 - (110 - 50) * ((count - 40) / (45 - 40)));
+    } else if (ratio >= 0.7 && ratio < 0.9) {
+      // オレンジから赤へのグラデーション (r=196 g=88 b=0 から r=226g=45b=0)
+      const gradientRatio = (ratio - 0.7) / 0.2;
+      r = 196 + Math.round((226 - 196) * gradientRatio);
+      g = 88 + Math.round((45 - 88) * gradientRatio);
       b = 0;
-    } else if (count <= maxTimestamps * 0.9) {
-      // 単色: 赤 (R: 255, G: 50, B: 0)
-      r = 255;
-      g = 50;
+    } else if (ratio >= 0.9 && ratio < 1) {
+      const gradientRatio = (ratio - 0.9) / 0.1;
+      r = 226 + Math.round((0 - 226) * gradientRatio);
+      g = 0;
       b = 0;
-    } else {
-      // countがconfig.maxTimestamps * 0.9より大きい場合の処理
-      r = 255;
-      g = 50;
+    } else if (ratio >= 1) {
+      r = 0;
+      g = 0;
       b = 0;
     }
     
     // RGBA形式に変換
-    const bgColor = [r, g, b, 255];
+    const bgColor = `rgb(${r}, ${g}, ${b})`;
 
     return bgColor;
   }
