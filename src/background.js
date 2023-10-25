@@ -80,6 +80,26 @@ function saveAndUpdateTimestamps(newTimestamp) {
     chrome.storage.local.set({ timestamps });
     updateUI(timestamps);
   });
+  // リスト定時更新 リスト追加からtimeToCount後にリストを再更新
+  if(newTimestamp){
+    const timeoutDuration = config.timeToCount;
+    const triggerTime = new Date(newTimestamp + config.timeToCount);
+    const triggerTimeJST = triggerTime.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    
+    console.log(`Setting timeout for: ${timeoutDuration} milliseconds`);
+    console.log(`This will trigger at (JST): ${triggerTimeJST}`);
+    
+    setTimeout(() => {
+      chrome.storage.local.get(['timestamps'], (result) => {
+        let timestamps = result.timestamps || [];
+        // newTimestampは古くなっている可能性があるので、ここでは更新せずにフィルタリングだけ行います
+        timestamps = updateTimestamps(timestamps, null);
+        chrome.storage.local.set({ timestamps });
+        updateUI(timestamps);
+        console.log("now up to date");
+      });
+    }, timeoutDuration);
+  }
 }
 
 // タイムスタンプの処理を行う関数（引数 newTimestamp はオプショナル）
