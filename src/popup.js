@@ -6,7 +6,6 @@ const layout = {
   paper_bgcolor: "#00000000",
   font: { color: "white"}
 }; 
-
 const data = [
   {
     domain: { x: [0, 1], y: [0, 1] },
@@ -26,10 +25,10 @@ const data = [
     }
   }
 ];
-
 Plotly.newPlot('countGauge', data, layout, { displayModeBar: false });
 
 
+// DOMが読み込まれた際の処理(リスト更新など)
 document.addEventListener("DOMContentLoaded", () => {
 
   // タイムスタンプのリストを表示
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxRange = result.maxTimestamps || 50;
     const count = timestamps.length;
     updateGauge(count, maxRange);
-    // document.getElementById("count").textContent = count;
 
     // タイムスタンプのリストをHTMLで表示
     const timestampListDiv = document.getElementById("timestamps-list");
@@ -55,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (message.type === "UPDATE_UI") {
       const { count, timestamps } = message;
-      updateGauge(count);
-      document.getElementById("count").textContent = count;
+      updateGauge(count, null);
+      // document.getElementById("count").textContent = count;
       const timestampListDiv = document.getElementById("timestamps-list");
       timestampListDiv.innerHTML = timestamps.map((ts, index) => {
         const date = new Date(ts);
@@ -72,10 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('max-timestamps').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('countGauge').value = result.maxTimestamps ?? 50; // 保存メッセージ数 デフォルトは50回
     document.getElementById('time-to-count').value = (result.timeToCount ?? 3 * 60 * 60 * 1000) / 60 / 1000; // タイムスタンプ保持時間 デフォルトは3時間(180分)
-    // document.getElementById("countGauge").setAttribute("value", result.maxTimestamps ?? 50);  // ゲージのレンジ更新
-    // // ゲージを描画
-    // updateGauge(null, maxRange);
-
   });
 
   // 設定画面表示
@@ -103,19 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-
-
-
-
   //ゲージをアップデートする関数 countはオプション
   const updateGauge = (count, maxRange) => {
-    // const maxTimestamps = document.getElementById("countGauge").getAttribute("value");
-    // countがあったら数値を更新する。
-
-    if(!maxRange){
-      maxRange = data[0].gauge.axis.range;
+    if(maxRange === null){
+      maxRange = data[0].gauge.axis.range[1];
     }
-    if(!count){
+    if(count === null){
       count = data[0].value;
     }
 
@@ -169,6 +156,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return bgColor;
   }
 
+  //
+  // ダイアログ処理
+  //
+  const dialog = document.getElementById('counterResetDialog'); // dialog（モーダルダイアログ）の宣言
+  // 開くボタンをクリックした場合の処理
+  document.getElementById('dialogOpenButton').addEventListener('click', function() { 
+    dialog.showModal();
+  }, false); // open（開く）ボタンの宣言
+  // 閉じるボタンをクリックした場合の処理
+  document.getElementById('dialogCloseButton').addEventListener('click', function() {
+    dialog.close();
+  }, false);; // close（閉じる）ボタンの宣言
+
+  //カウンターをリセット処理
+  document.getElementById('resetCounterButton').addEventListener('click', () => {
+    // background.jsにメッセージを送信
+    chrome.runtime.sendMessage({type: 'reset'});
+    dialog.close();
+  });
 
 });
 

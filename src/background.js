@@ -179,7 +179,6 @@ function updateUI(timestamps) {
       chrome.runtime.sendMessage({type: "UPDATE_UI", count, timestamps});
     }
   });
-  
 }
 
 // バッジのスタイルを更新する関数
@@ -192,3 +191,15 @@ function updateBadge(count) {
     chrome.action.setBadgeTextColor({color: textColor});
   }
 }
+
+// カウンターリセット処理
+// popup.jsからメッセージを受け取り発火
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'reset') {
+    // ここでリセット処理を実行
+    // timespampsを空にして保存
+    let timestamps = [];
+    chrome.storage.local.set({ timestamps });
+    updateUI(timestamps);
+  }
+});
