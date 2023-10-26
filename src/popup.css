@@ -113,7 +113,7 @@ button:hover {
   border-radius: 5px;
   background-color: #292a2d;
   padding: 10px;
-  margin-top: 6px;
+  margin: 6px 6px;
   overflow: auto; /* もし内容が多くなった場合にスクロールを可能にするため */
 }
 
@@ -181,3 +181,43 @@ input[type=number] {
   border: 1px solid #ffffff;
 }
 
+
+/* リセットボタン */
+.resetCounterButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  margin:12px auto;
+  padding: 6px 6px;
+  border: 1px solid #ff0000;
+  border-radius: 5px;
+  background-color: #00000000;
+  color: #ff0000;
+  font-size: 16px;
+}
+.dialogButton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  margin:12px auto;
+  padding: 6px 6px;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  background-color: rgb(63, 63, 63);
+  color: #ffffff;
+  font-size: 16px;
+}
+dialog {
+  color: #fff;
+  background-color: #292a2d;
+  border-color: #00000000;
+  border-radius: 0.6rem;
+  margin: auto;
+}
+dialog:-internal-dialog-in-top-layer::backdrop {
+  position: fixed;
+  inset: 0px;
+  background: rgba(0, 0, 0, 0.5);
+}

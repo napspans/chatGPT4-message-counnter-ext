@@ -10,7 +10,7 @@
     <!-- メイン画面 -->
     <div id="main-view">
       <div class="header">
-        <h1>message counter<span id="count"></span></h1>
+        <h1>message counter</h1>
         <button id="settings-button">&#9881;</button>
       </div>
       <div class="main-items">
@@ -60,6 +60,14 @@
             </div>
           </div>
         </form>
+        <dialog id="counterResetDialog">
+          <!-- モーダルウィンドウ内のテキストの指定 -->
+          <p>Wanna reset the counter?</p>
+          <!-- モーダルウィンドウ内を閉じるボタンの指定 -->
+          <button id="resetCounterButton" class="resetCounterButton">Do it !</button>
+          <button id="dialogCloseButton" class="dialogButton">not yet.</button>
+        </dialog>
+        <button id="dialogOpenButton" class="resetCounterButton">Reset Counter</button>
       </div>
     </div>
   </body>
