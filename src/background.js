@@ -104,8 +104,8 @@ function calculateGradientColors(count) {
 
   if (count <= config.maxTimestamps * 0.5) {
     // 単色: 緑 (R: 127, G: 255, B: 0)
-    r = 127;
-    g = 255;
+    r = 16;
+    g = 138;
     b = 0;
   } else if (count <= config.maxTimestamps * 0.7) {
     // 緑からオレンジへのグラデーション (R: 127-255, G: 255-110, B: 0)
