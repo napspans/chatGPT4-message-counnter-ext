@@ -1,13 +1,13 @@
-# ![icon_sorce](/assets/icon48.png) chatGPT4-message-counnter-ext
+# ![icon_sorce](/assets/icon48.png) chatGPT4-message-counter-ext
 
 openAIのweb版chatGPT4のメッセージ数をカウントするchrome拡張機能![image](/assets/screenshot1.png)
 
-chatGPT4には3時間で50メッセージの制限があり、現在までに何メッセージ仕様したのか把握するのに使用します。
+chatGPT4には3時間で50メッセージの制限があり、現在までに何メッセージ使用したのか把握するのに利用使用します。
 ![image](/assets/chatGPThasCap.png)
 
 ## インストール方法
 - chromeウェブストアからインストール(coming soon...)
-- またはこれをダウンロードしてインストール[chatGPT4-message-counnter-ext.crx](https://github.com/napspans/chatGPT4-message-counnter-ext/releases).
+- またはリリースからダウンロードして```パッケージ化されていない拡張機能をインストール```[chatGPT4-message-counter-ext_v1.0.zip](https://github.com/napspans/chatGPT4-message-counter-ext/releases/download/v1.0/chatGPT4-message-counter-ext_v1.0.zip).
 
 ## Screenshots
 ![image](/assets/screenshot2.png)

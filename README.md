@@ -8,7 +8,7 @@ ChatGPT4 has a 50-message limit within 3 hours. Use this extension to keep track
 
 ## Installation
 - Install from Chrome Web Store (coming soon...)
-- Or download and install from this link: [chatGPT4-message-counter-ext.crx](https://github.com/napspans/chatGPT4-message-counter-ext/releases).
+- Or download and install from this link: [chatGPT4-message-counter-ext_v1.0.zip]https://github.com/napspans/chatGPT4-message-counter-ext/releases/download/v1.0/chatGPT4-message-counter-ext_v1.0.zip).
 
 ## Screenshots
 ![image](/assets/screenshot2.png)
@@ -32,4 +32,7 @@ If you find this extension useful, your donations are appreciated.
 ## FAQ
 There are no FAQs yet. If you have any questions, feel free to contact:
 
-Twitter: @napspans
+X : @napspans
+
+## for developers
+***[foDeveroper.md](/docs/foDeveroper.md)***
