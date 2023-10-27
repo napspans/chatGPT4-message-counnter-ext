@@ -6,7 +6,9 @@ A Chrome extension for counting messages on OpenAI's web-based chatGPT4! ![image
 ChatGPT4 has a 50-message limit within 3 hours. Use this extension to keep track of how many messages you've used so far.
 ![image](/assets/chatGPThasCap.png)
 
-
+## Installation
+- Install from Chrome Web Store (coming soon...)
+- Or download and install from this link: [chatGPT4-message-counter-ext.crx](https://github.com/napspans/chatGPT4-message-counter-ext/releases).
 
 ## Screenshots
 ![image](/assets/screenshot2.png)
