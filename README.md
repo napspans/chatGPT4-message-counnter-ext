@@ -1,4 +1,5 @@
 # ![icon_source](/assets/icon48.png) chatGPT4-Message-Counter Extension
+***日本語は[こちら](/docs/README_JP.md)***
 
 A Chrome extension for counting messages on OpenAI's web-based chatGPT4! ![image](/assets/screenshot1.png)
 
