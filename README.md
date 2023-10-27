@@ -1,60 +1,32 @@
-# chatGPT4-message-counnter-ext
-openaiのweb版chatGPT4のメッセージ数をカウントするchrome拡張機能
+# ![icon_source](/assets/icon48.png) chatGPT4-Message-Counter Extension
 
-# 機能
-- [x] メッセージカウント
-- [x] カウントバッジ表示
-- [x] タイムスタンプリスト表示
-- [ ] インターバル算出
-- [ ] チャットページに埋め込み
-- [x] カウント任意入力
-- [ ] 設定画面
-  - [x] カウンタ上限(デフォルト50メッセージ)
-  - [x] 削除時間(デフォルト3時間)
-  - [ ] グラデーションのカラー設定
-  - [x] モデルの変更
-  - [x] バッチの表示非・表示
-- [ ] ドネーションページ
+A Chrome extension for counting messages on OpenAI's web-based chatGPT4! ![image](/assets/screenshot1.png)
+
+ChatGPT4 has a 50-message limit within 3 hours. Use this extension to keep track of how many messages you've used so far.
+![image](/assets/chatGPThasCap.png)
 
 
 
-# 監視対象リクエスト
-```
-fetch("https://chat.openai.com/backend-api/conversation", {
-  "headers": {
-    "accept": "text/event-stream",
-    "accept-language": "ja-JP",
-    "authorization": "Bearer ***************",
-    "content-type": "application/json",
-    "sec-ch-ua": "\"Chromium\";v=\"118\", \"Brave\";v=\"118\", \"Not=A?Brand\";v=\"99\"",
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": "\"Windows\"",
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-origin",
-    "sec-gpc": "1"
-  },
-  "referrer": "https://chat.openai.com/c/********-****-****-****-************",
-  "referrerPolicy": "same-origin",
-  "body": "{\"action\":\"next\",\"messages\":[{\"id\":\"********-****-****-****-************\",\"author\":{\"role\":\"user\"},\"content\":{\"content_type\":\"text\",\"parts\":[\"test\\n\"]},\"metadata\":{}}],\"conversation_id\":\"********-****-****-****-************\",\"parent_message_id\":\"********-****-****-****-************\",\"model\":\"gpt-4\",\"timezone_offset_min\":-540,\"suggestions\":[],\"history_and_training_disabled\":false,\"arkose_token\":\"********\",\"force_paragen\":false}",
-  "method": "POST",
-  "mode": "cors",
-  "credentials": "include"
-});
-```
+## Screenshots
+![image](/assets/screenshot2.png)
+![image](/assets/screenshot3.png)
 
-# commit message rules
-書き方例``「add:△△を追加」``  
-変更を加えて機能を日本語で表記
-```
-editing: 修正中
-add:「～追加」 新しい機能追加
-fix:「～修正」 バグの修正
-refactor: 「～改善」仕様に影響がないコード改善(リファクタ)
-perf:「～向上」 パフォーマンス向上関連
-style: コメント等スタイルの修正編集
-chore: ビルド、補助ツール、ライブラリ関連
-docs: read.me、json、アカウントデータ等ドキュメント修正※
-test:「～テスト」 テスト関連
-```
-※read.me、アカウントデータ等の仕様に影響がないドキュメントはdocumentのブランチにてコミット、マージ
+## Configuration Options
+Navigate to the settings page by clicking the gear &#9881; icon on the popup window.
+- **Badge Display**: Toggle to display the message count as a badge on the extension icon. (ON/OFF)
+- **Detection Model**: Choose the GPT model you want to count messages for. (chatGPT-4/chatGPT-3)
+- **Max Timestamp Count**: Set the maximum length for the list where timestamps are saved. (Must be 1 or more)
+- **Count Period**: Set the time period (in minutes) during which timestamps will be automatically deleted from the list.
+- **Counter Reset Button**: Resets all saved timestamps at once.
+
+## Donations
+If you find this extension useful, your donations are appreciated.
+
+<a href="https://www.buymeacoffee.com/napspans" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 200px !important;" ></a>
+
+![bmc_qr](/assets/bmc_qr200.png)
+
+## FAQ
+There are no FAQs yet. If you have any questions, feel free to contact:
+
+Twitter: @napspans
