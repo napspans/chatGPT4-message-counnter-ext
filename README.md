@@ -4,15 +4,16 @@
 A Chrome extension for counting messages on OpenAI's web-based chatGPT4! ![image](/assets/screenshot1.png)
 
 ChatGPT4 has a 50-message limit within 3 hours. Use this extension to keep track of how many messages you've used so far.
+
 ![image](/assets/chatGPThasCap.png)
 
 ## Installation
-- Install from Chrome Web Store (coming soon...)
-- Or download and install from this link: [chatGPT4-message-counter-ext_v1.0.zip]https://github.com/napspans/chatGPT4-message-counter-ext/releases/download/v1.0/chatGPT4-message-counter-ext_v1.0.zip).
+- Install from [google web store](https://chromewebstore.google.com/detail/chatgpt-4-message-counter/lfijkccneagembdmjojhdndppiffinke)
+- Or download and install from this link: [chatGPT4-message-counter-ext_v1.0.zip](https://github.com/napspans/chatGPT4-message-counter-ext/releases/download/v1.0.0/chatGPT4-message-counter-ext_v1.0.zip).
 
 ## Screenshots
-![image](/assets/screenshot2.png)
-![image](/assets/screenshot3.png)
+
+![rect293](https://github.com/napspans/chatGPT4-message-counter-ext/assets/30250386/24752fd8-4382-4f14-8c1a-ada10d75e8a1)
 
 ## Configuration Options
 Navigate to the settings page by clicking the gear &#9881; icon on the popup window.
@@ -23,7 +24,7 @@ Navigate to the settings page by clicking the gear &#9881; icon on the popup win
 - **Counter Reset Button**: Resets all saved timestamps at once.
 
 ## Donations
-If you find this extension useful, your donations are appreciated.
+If you find this extension useful, your donations are appreciated.☕(｡-人-｡) ｵﾈｶﾞｲｼﾏｽ
 
 <a href="https://www.buymeacoffee.com/napspans" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 200px !important;" ></a>
 
